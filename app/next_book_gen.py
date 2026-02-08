@@ -1,0 +1,1 @@
+# use langgraph for next volume generation based on previous volumes and user input

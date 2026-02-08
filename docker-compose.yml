@@ -1,11 +1,11 @@
 version: '3.8'
 services:
   ollama:
-    image: ollama/ollama
+    build:
+      context: .
+      dockerfile: "./ollama/Dockerfile"
     ports:
       - "11434:11434"
-    environment:
-      - OLLAMA_MODEL=llama2
     volumes:
       - ollama_data:/root/.ollama
     networks:
