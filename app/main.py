@@ -1,6 +1,6 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from load.load_books import BooksLoader
+from app.next_book_gen import generate_book_chapters
 import os
 import signal
 import time
@@ -74,5 +74,17 @@ if book:
         st.link_button(f"Go to ask question about following book: {book['title']}", "http://localhost:9000")
 
 # generate next volume of the book
-if st.button("Generate Next Chapter"):
-    st.info(f"Generating next chapter for '{book['title']}'")
+with st.container():
+    st.subheader(f"Generate Next Chapters for selected book: {book['title']}")
+    num_chapters = st.number_input(
+        "Number of chapters to generate",
+        min_value=1,
+        max_value=15,
+        value=10,
+        step=1,
+        help="Select how many chapters you want to generate for the next volume."
+    )
+    if st.button("Generate Next Chapter(s)"):
+        with st.spinner(f"Generating {num_chapters} chapter(s) for '{book['title']}' ...", show_time=True):
+            output_file = generate_book_chapters(book, num_chapters)
+            st.link_button("Open generated book", output_file)
