@@ -57,7 +57,7 @@ def book_to_html(book_title: str, chapters: list):
         </head>
         <body>
         <h1>{book_title}</h1>
-        <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+        <p>Generated on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
         <hr>
     """
 
@@ -136,18 +136,19 @@ def chapter_detailer_agent(state: BookState):
 def writer_agent(state: BookState):
     """The Writer: Uses all 3 summaries to write the next chapter."""
     prompt = f"""
-    You are a novelist writing Volume 2.
+    You are a novelist writing the next chapter of a book, based on a given previous context.
     Your task is to write a FULL STORY CHAPTER, not a summary.
 
     [INSTRUCTION]
-    Write the full narrative of the next chapter. Do not say "In this chapter..." or "The story continues...".
-    Start immediately with the action.
-    Use vivid imagery, active dialogue, and internal character thoughts.
+    - Write the full narrative of the next chapter. Do not say "In this chapter..." or "The story continues...".
+    - Start immediately with the action.
+    - Generates only the chapter content (without chapter title or summary).
+    - Use vivid imagery, active dialogue, and internal character thoughts.
 
     [CONSTRAINTS]
     - STYLE: Match the tone of a professional novel.
     - LENGTH: Target approximately {generated_chapter_size} characters.
-    - OUTPUT: Return ONLY the story text. No intro/outro.
+    - OUTPUT: Return ONLY the chapter text. No intro/outro.
 
     [CONTEXT ARCHIVE]
     - World Lore: '''{state['original_book']['content']}'''
@@ -179,7 +180,7 @@ def should_continue(state: BookState):
         # We reached our goal, stop the engine
         return "end"
 
-def generate_next_book(book_metadata: dict):
+def generate_next_book(book_metadata: dict, num_chapters: int, convert_html:bool=True):
 
     book_content = get_book_text(book_metadata)
 
@@ -218,7 +219,7 @@ def generate_next_book(book_metadata: dict):
         "original_book": book_data,
         "new_chapters": [],
         "current_chapter_count": 0,
-        "max_chapters": 2  # This will trigger 2 loops
+        "max_chapters": num_chapters  # This will trigger 2 loops
     }
 
     print("Starting the Book Generation Engine...\n")
@@ -227,22 +228,24 @@ def generate_next_book(book_metadata: dict):
         for node, data in output.items():
             if node == "writer":
                 print("✅ Finished chapter")
-    return data
+
+    output_file = None
+    if convert_html:
+        output_file = book_to_html(book_title="", chapters=data["new_chapters"])
+    return data, output_file
 
 
 # for testing outside st app..
 
-book_metadata = {
-    "id": 84,
-    "summaries": [
-        "\"Frankenstein; Or, The Modern Prometheus\" by Mary Wollstonecraft Shelley is a Gothic novel published in 1818. It tells the story of Victor Frankenstein, a young scientist who creates a living creature from assembled body parts in an unorthodox experiment. When the creature awakens, Victor flees in horror, abandoning his creation. The conscious being must navigate a world that fears him, learning language and seeking connection, only to face repeated rejection. Embittered and alone, the creature confronts his creator with a desperate request that will set both on a dark path of vengeance and tragedy. (This is an automatically generated summary.)"
-    ]
-}
+# book_metadata = {
+#     "id": 84,
+#     "summaries": [
+#         "\"Frankenstein; Or, The Modern Prometheus\" by Mary Wollstonecraft Shelley is a Gothic novel published in 1818. It tells the story of Victor Frankenstein, a young scientist who creates a living creature from assembled body parts in an unorthodox experiment. When the creature awakens, Victor flees in horror, abandoning his creation. The conscious being must navigate a world that fears him, learning language and seeking connection, only to face repeated rejection. Embittered and alone, the creature confronts his creator with a desperate request that will set both on a dark path of vengeance and tragedy. (This is an automatically generated summary.)"
+#     ]
+# }
 
-book_metadata["formats"] = {}
-book_metadata["formats"]["text/plain; charset=utf-8"] = "https://www.gutenberg.org/ebooks/84.txt.utf-8"
+# book_metadata["formats"] = {}
+# book_metadata["formats"]["text/plain; charset=utf-8"] = "https://www.gutenberg.org/ebooks/84.txt.utf-8"
 
-generated_chapters = generate_next_book(book_metadata)
-print("end")
-
-# TODO: save data chapters into a PDF
+# generated_chapters = generate_next_book(book_metadata)
+# print("end")
