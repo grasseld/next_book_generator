@@ -17,6 +17,14 @@ class Settings(BaseSettings):
 
     # qdrant settings
     qdrant_collection: str = "book_collection"
+    qdrant_uri: str = "http://localhost:6333"
+
+    # ollama model settings
+    ollama_model: str = "tinyllama"
+    ollama_uri: str = "http://localhost:11434"
+
+    # retrieval
+    top_k_retrieval: int = 5
 
     # Read .env variables
     model_config = SettingsConfigDict(

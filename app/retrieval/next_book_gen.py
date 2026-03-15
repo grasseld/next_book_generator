@@ -1,0 +1,1 @@
+# use langgraph for next volume generation based on previous volumes (TODO later also on user input)

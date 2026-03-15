@@ -1,3 +1,6 @@
 .vscode
 .venv
 *.pyc
+.chainlit
+.files
+.DS_Store

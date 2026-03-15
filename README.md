@@ -4,8 +4,8 @@
 
 This project is a way to play with genAI models and RAG functionalities using the [`Gutenberg project`](https://www.gutenberg.org/) data. The objective here is to provide 2 functionalities :
 
-1. One simple functionality `AMA book` to ask questions on the books, using RAG.
-2. One functionality to create the next volume of a book, using multi-agents.
+1. One simple functionality `AMA book` to ask questions on one selected book, using RAG.
+2. One functionality to create the next volume of a selected book, using multi-agents.
 
 ## Infrastructure
 
