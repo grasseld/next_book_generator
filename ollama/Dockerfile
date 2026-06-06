@@ -1,6 +1,6 @@
-FROM ollama/ollama
+FROM ollama/ollama:latest
 
-#RUN ollama pull tinyllama
+COPY ./ollama/start.sh ./start.sh
+RUN chmod +x ./start.sh
 
-# Run ollama llama3
-CMD ["serve"]
+ENTRYPOINT ["./start.sh"]

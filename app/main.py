@@ -11,12 +11,15 @@ import sys
 
 def _kill_processes_on_port(port: int):
     """Kill any process listening on the given TCP port (macOS/Linux)."""
-    result = subprocess.run(
-        ["lsof", "-ti", f":{port}"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            ["lsof", "-ti", f":{port}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return
     pids = [int(p) for p in result.stdout.split()] if result.stdout else []
     for pid in pids:
         try:
@@ -24,9 +27,15 @@ def _kill_processes_on_port(port: int):
         except ProcessLookupError:
             pass
 
-books_loader = BooksLoader()
 
-nb_books = len(books_loader.all_books)
+if "all_books" not in st.session_state:
+    books_loader = BooksLoader()
+    all_books = books_loader.all_books
+    st.session_state.all_books = all_books
+else:
+    all_books = st.session_state.all_books
+
+nb_books = len(all_books)
 st.success(f"Done! {nb_books} books loaded in the vector store")
 
 st.title("Book Generator App")
@@ -35,7 +44,7 @@ st.write("Welcome to the Book Generator!")
     # Example input form
 book = st.selectbox(
     "Select one book",
-    books_loader.all_books,
+    all_books,
     format_func=lambda b: b["title"]
 )
 
@@ -60,6 +69,8 @@ if book:
                 "run",
                 "--port",
                 "9000",
+                "--host",
+                "0.0.0.0",
                 "-h",  # headless mode
                 chainlit_script,
             ], env=env)
@@ -78,7 +89,7 @@ if book:
 with st.container():
     st.subheader(f"Generate Next Chapters for selected book: {book['title']}")
     num_chapters = st.selectbox(
-        "Select one book",
+        "Pick Number of Chapters",
         range(0,15),
         help="Select how many chapters you want to generate for the next volume."
     )

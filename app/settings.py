@@ -20,7 +20,8 @@ class Settings(BaseSettings):
     qdrant_uri: str = "http://localhost:6333"
 
     # ollama model settings
-    ollama_model: str = "tinyllama"
+    ollama_model: str = "llama3"
+    ollama_embedding_model: str = "nomic-embed-text"
     ollama_uri: str = "http://localhost:11434"
 
     # retrieval

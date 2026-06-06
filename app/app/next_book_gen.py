@@ -12,11 +12,11 @@ all_chapters_summary_size = 500
 # detailed chapter summary - size of summary
 last_chapter_summary_size = 1000
 # last part of the first book volume to give an initial "last_chapter" context to the agent
-last_part_initial_book_size = 5000
+last_part_initial_book_size = 1000
 
-generated_chapter_size = 5000
+generated_chapter_size = 1000
 
-model = OllamaLLM(model=settings.ollama_model)
+model = OllamaLLM(model=settings.ollama_model, base_url=settings.ollama_uri)
 
 
 class BookState(TypedDict):
@@ -95,8 +95,11 @@ def history_computer_agent(state: BookState):
         history = state["original_book"]["content"]
         history = history[len(history)-last_part_initial_book_size:-1] # last parts of the first volume..
     else:
-        # Simple logic: combine the titles or summaries of new chapters
-        history = " | ".join(state["new_chapters"])
+        # Take 3 last chapters
+        if len(state["new_chapters"]) > 3:
+            history = " | ".join(state["new_chapters"][len(state["new_chapters"])-3:len(state["new_chapters"])])
+        else:
+            history = " | ".join(state["new_chapters"])
 
     # summarize history with LLM
     prompt = f"""
@@ -151,7 +154,7 @@ def writer_agent(state: BookState):
     - OUTPUT: Return ONLY the chapter text. No intro/outro.
 
     [CONTEXT ARCHIVE]
-    - World Lore: '''{state['original_book']['content']}'''
+    - World Lore: '''{state['original_book']['summary']}'''
     - Plot Progress: '''{state['running_history']}'''
 
     [THE IMMEDIATE CLIPBOARD]
@@ -236,6 +239,8 @@ def generate_next_book(book_metadata: dict, num_chapters: int, convert_html:bool
 
 
 # for testing outside st app..
+# import time
+# start_time = time.time()
 
 # book_metadata = {
 #     "id": 84,
@@ -247,5 +252,8 @@ def generate_next_book(book_metadata: dict, num_chapters: int, convert_html:bool
 # book_metadata["formats"] = {}
 # book_metadata["formats"]["text/plain; charset=utf-8"] = "https://www.gutenberg.org/ebooks/84.txt.utf-8"
 
-# generated_chapters = generate_next_book(book_metadata)
+# data, out_file = generated_chapters = generate_next_book(book_metadata, 3)
+
+# end_time = time.time()
+# print(f"Execution time: {end_time - start_time} seconds")
 # print("end")
