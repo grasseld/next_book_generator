@@ -15,7 +15,7 @@ class Retriever():
             vector_store: An instance of a vector store client (e.g., Qdrant).
         """
         # embeddings model
-        self.embeddings = OllamaEmbeddings(model=settings.ollama_model, base_url=settings.ollama_uri)
+        self.embeddings = OllamaEmbeddings(model=settings.ollama_embedding_model, base_url=settings.ollama_uri)
         # vector store client
         qdrant_client = QdrantClient(settings.qdrant_uri)
         self.vector_store = QdrantVectorStore(

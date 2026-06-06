@@ -24,7 +24,7 @@ class BooksLoader():
         Initialize the Qdrant vector store client and create the collection if it doesn't exist.
         """
         qdrant_client = QdrantClient(settings.qdrant_uri)
-        embeddings = OllamaEmbeddings(model=settings.ollama_model, base_url=settings.ollama_uri)
+        embeddings = OllamaEmbeddings(model=settings.ollama_embedding_model, base_url=settings.ollama_uri)
 
         if not qdrant_client.collection_exists(settings.qdrant_collection):
             vector_size = len(embeddings.embed_query("sample text"))
@@ -48,7 +48,7 @@ class BooksLoader():
             List[Document]: A list of Document objects containing the split content.
         """
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,  # chunk size (characters)
+            chunk_size=1500,  # chunk size (characters)
             chunk_overlap=200,  # chunk overlap (characters)
             add_start_index=True,  # track index in original document
         )

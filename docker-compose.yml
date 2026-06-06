@@ -8,6 +8,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    mem_limit: 8g
     networks:
       - book_gen_nt
     container_name: ollama
@@ -18,12 +19,13 @@ services:
       dockerfile: "./app/Dockerfile"
     ports:
       - "8501:8501"
+      - "9000:9000"
     depends_on:
       - ollama
       - qdrant
     environment:
-      - STREAMLIT_OLLAMA_URL=http://ollama:11434
-      - STREAMLIT_QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URI=http://ollama:11434
+      - QDRANT_URI=http://qdrant:6333
     networks:
       - book_gen_nt
     container_name: book_gen_app
